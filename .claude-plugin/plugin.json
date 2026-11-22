@@ -1,0 +1,10 @@
+{
+  "name": "audio4films",
+  "version": "0.1.0",
+  "description": "Add a dubbed audio track from one release to a better video release, in sync and losslessly, with measured and verified sync. Optional Stremio streaming.",
+  "author": { "name": "The Doc (4TheDoctor)", "url": "https://github.com/4TheDoctor" },
+  "homepage": "https://github.com/4TheDoctor/audio4films",
+  "repository": "https://github.com/4TheDoctor/audio4films",
+  "license": "MIT",
+  "keywords": ["ffmpeg", "dubbing", "audio-sync", "mkv", "hdr", "stremio"]
+}

@@ -1,0 +1,11 @@
+{
+  "name": "audio4films",
+  "owner": { "name": "The Doc (4TheDoctor)", "url": "https://github.com/4TheDoctor" },
+  "plugins": [
+    {
+      "name": "audio4films",
+      "source": "./",
+      "description": "Add a dubbed audio track from one release to a better video release, in sync and losslessly."
+    }
+  ]
+}
