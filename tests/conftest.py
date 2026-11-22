@@ -27,6 +27,12 @@ def noise(path: Path, color: str, seed: int, amp: float, seconds: int = DURATION
     return path
 
 
+def seconds(path: Path) -> float:
+    out = subprocess.run(["ffprobe", "-v", "error", "-show_entries", "format=duration", "-of", "csv=p=0", str(path)],
+                         capture_output=True, text=True, check=True).stdout
+    return float(out)
+
+
 def srt(path: Path, text: str) -> Path:
     path.write_text(f"1\n00:00:05,000 --> 00:00:08,000\n{text}\n\n2\n00:01:00,000 --> 00:01:03,000\n{text} 2\n")
     return path
@@ -52,7 +58,14 @@ def media(tmp_path_factory) -> dict[str, Path]:
     en = mix("anull", bed, v_en, d / "en.wav")
     fr = mix("anull", bed, v_fr, d / "fr.wav")
     es = mix(f"adelay={int(DUB_OFFSET * 1000)}", bed, v_es, d / "es.wav")
-    es_cut = mix("aselect='not(between(t,70,75))',asetpts=N/SR/TB", bed, v_es, d / "es_cut.wav")
+    # A scene cut: 5 s of the bed missing at 70 s. Built with atrim + concat because aselect left
+    # the audio uncut on FFmpeg 6.1 (Ubuntu 24.04). The assert keeps a silent fixture from passing.
+    bed_cut = d / "bed_cut.wav"
+    ff("-i", str(bed), "-filter_complex",
+       "[0:a]asplit[x][y];[x]atrim=0:70[x1];[y]atrim=start=75,asetpts=PTS-STARTPTS[y1];"
+       "[x1][y1]concat=n=2:v=0:a=1[c]", "-map", "[c]", str(bed_cut))
+    assert abs(seconds(bed) - seconds(bed_cut) - 5) < 0.1, "fixture: the scene cut was not applied"
+    es_cut = mix("anull", bed_cut, v_es, d / "es_cut.wav")
     # PAL dub: the same content resampled to play 25/23.976 times faster (pitch goes up too).
     es_pal = mix(f"asetrate={48000 * 25 / (24000 / 1001):.4f},aresample=48000", bed, v_es, d / "es_pal.wav")
 
